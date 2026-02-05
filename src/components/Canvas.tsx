@@ -28,6 +28,39 @@ export default function Canvas({ roomCode, username, initialElements }: CanvasPr
     const [inputValue, setInputValue] = useState('');
     const canvasRef = useRef<HTMLDivElement>(null);
 
+    // Poll for element updates every 5 seconds
+    const fetchElements = useCallback(async () => {
+        try {
+            const res = await fetch(`/api/room/sync?roomCode=${roomCode}`);
+            if (res.ok) {
+                const data = await res.json();
+                if (data.elements) {
+                    setElements(data.elements);
+                }
+            }
+        } catch (error) {
+            console.error('Failed to fetch elements:', error);
+        }
+    }, [roomCode]);
+
+    useEffect(() => {
+        const interval = setInterval(fetchElements, 5000);
+        return () => clearInterval(interval);
+    }, [fetchElements]);
+
+    // Save element to Redis
+    const saveElement = async (action: string, data: unknown) => {
+        try {
+            await fetch('/api/room/sync', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ roomCode, action, data }),
+            });
+        } catch (error) {
+            console.error('Failed to save element:', error);
+        }
+    };
+
     // Handle context menu (right-click to add)
     const handleContextMenu = useCallback((e: React.MouseEvent) => {
         e.preventDefault();
@@ -59,7 +92,7 @@ export default function Canvas({ roomCode, username, initialElements }: CanvasPr
         setInputValue('');
     };
 
-    const handleSubmitElement = () => {
+    const handleSubmitElement = async () => {
         if (!inputValue.trim() || !addType) return;
 
         const newElement: CanvasElement = {
@@ -75,8 +108,8 @@ export default function Canvas({ roomCode, username, initialElements }: CanvasPr
         setAddType(null);
         setInputValue('');
 
-        // TODO: Emit to socket for real-time sync
-        // emitElementAdded(roomCode, newElement);
+        // Save to Redis
+        await saveElement('add-element', newElement);
     };
 
     // Drag handlers
@@ -108,44 +141,50 @@ export default function Canvas({ roomCode, username, initialElements }: CanvasPr
         ));
     }, [dragging, dragOffset]);
 
-    const handleMouseUp = useCallback(() => {
+    const handleMouseUp = useCallback(async () => {
         if (dragging) {
             const element = elements.find(el => el.id === dragging);
             if (element) {
-                // TODO: Emit position update to socket
-                // emitElementMoved(roomCode, element.id, element.position);
+                // Save position to Redis
+                await saveElement('move-element', { id: element.id, position: element.position });
             }
             setDragging(null);
         }
-    }, [dragging, elements]);
+    }, [dragging, elements, roomCode]);
 
     // Delete element
-    const handleDelete = (elementId: string) => {
+    const handleDelete = async (elementId: string) => {
         setElements(prev => prev.filter(el => el.id !== elementId));
-        // TODO: Emit to socket
-        // emitElementRemoved(roomCode, elementId);
+        // Save to Redis
+        await saveElement('remove-element', { id: elementId });
     };
 
     // Render element based on type
     const renderElement = (element: CanvasElement) => {
         switch (element.type) {
             case 'link':
-                return (
-                    <a
-                        href={element.content}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={styles.linkContent}
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" />
-                            <polyline points="15,3 21,3 21,9" />
-                            <line x1="10" y1="14" x2="21" y2="3" />
-                        </svg>
-                        <span>{new URL(element.content).hostname}</span>
-                    </a>
-                );
+                try {
+                    return (
+                        <a
+                            href={element.content}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={styles.linkContent}
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" />
+                                <polyline points="15,3 21,3 21,9" />
+                                <line x1="10" y1="14" x2="21" y2="3" />
+                            </svg>
+                            <span>{new URL(element.content).hostname}</span>
+                        </a>
+                    );
+                } catch {
+                    return (
+                        <div className={styles.noteContent}>{element.content}</div>
+                    );
+                }
             case 'image':
                 return (
                     <img

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import styles from './Chat.module.css';
 
 interface ChatMessage {
@@ -27,7 +27,44 @@ export default function Chat({ roomCode, username, initialMessages }: ChatProps)
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
 
-    const handleSend = (e: React.FormEvent) => {
+    // Poll for new messages every 3 seconds
+    const fetchMessages = useCallback(async () => {
+        try {
+            const res = await fetch(`/api/room/sync?roomCode=${roomCode}`);
+            if (res.ok) {
+                const data = await res.json();
+                if (data.chatLog && data.chatLog.length > messages.length) {
+                    setMessages(data.chatLog);
+                }
+            }
+        } catch (error) {
+            console.error('Failed to fetch messages:', error);
+        }
+    }, [roomCode, messages.length]);
+
+    useEffect(() => {
+        const interval = setInterval(fetchMessages, 3000);
+        return () => clearInterval(interval);
+    }, [fetchMessages]);
+
+    // Save message to Redis
+    const saveMessage = async (message: ChatMessage) => {
+        try {
+            await fetch('/api/room/sync', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    roomCode,
+                    action: 'add-message',
+                    data: message,
+                }),
+            });
+        } catch (error) {
+            console.error('Failed to save message:', error);
+        }
+    };
+
+    const handleSend = async (e: React.FormEvent) => {
         e.preventDefault();
 
         const trimmed = newMessage.trim();
@@ -47,8 +84,8 @@ export default function Chat({ roomCode, username, initialMessages }: ChatProps)
         setMessages(prev => [...prev, message]);
         setNewMessage('');
 
-        // TODO: Emit to socket for real-time sync
-        // sendMessage(roomCode, message);
+        // Save to Redis
+        await saveMessage(message);
     };
 
     // Format link in messages
