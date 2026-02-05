@@ -1,0 +1,190 @@
+/* Error Pages */
+.errorPage,
+.loadingPage,
+.promptPage {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-md);
+}
+
+.errorContent {
+    text-align: center;
+}
+
+.errorContent h1 {
+    font-size: 64px;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: var(--space-sm);
+}
+
+.errorContent p {
+    font-size: 18px;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-md);
+}
+
+.errorDetail {
+    font-size: 13px;
+    color: var(--text-muted);
+    display: block;
+    margin-bottom: var(--space-lg);
+}
+
+.backButton {
+    padding: var(--space-sm) var(--space-lg);
+    font-size: 13px;
+    color: var(--text-primary);
+    background-color: var(--bg-tertiary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+}
+
+.backButton:hover {
+    background-color: var(--bg-hover);
+}
+
+/* Loading */
+.loadingPage {
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+.loader {
+    width: 24px;
+    height: 24px;
+    border: 2px solid var(--border-primary);
+    border-top-color: var(--text-secondary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Name Prompt */
+.promptCard {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl);
+    text-align: center;
+    min-width: 320px;
+}
+
+.promptCard h2 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--space-sm);
+}
+
+.promptCard p {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: var(--space-lg);
+}
+
+.promptCard form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+/* Room Layout */
+.room {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-sm) var(--space-md);
+    background-color: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-primary);
+    flex-shrink: 0;
+}
+
+.headerLeft,
+.headerRight {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+}
+
+.roomCode {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.copyBtn,
+.exitBtn {
+    padding: 4px 12px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    background-color: transparent;
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.copyBtn:hover,
+.exitBtn:hover {
+    color: var(--text-primary);
+    border-color: var(--border-secondary);
+}
+
+.username {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+/* Workspace */
+.workspace {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+}
+
+.canvasContainer {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    background-color: var(--bg-primary);
+}
+
+.sidePanel {
+    width: 320px;
+    flex-shrink: 0;
+    border-left: 1px solid var(--border-primary);
+    background-color: var(--bg-secondary);
+    display: flex;
+    flex-direction: column;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .workspace {
+        flex-direction: column;
+    }
+
+    .sidePanel {
+        width: 100%;
+        height: 300px;
+        border-left: none;
+        border-top: 1px solid var(--border-primary);
+    }
+}

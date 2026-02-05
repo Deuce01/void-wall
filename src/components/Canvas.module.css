@@ -1,0 +1,226 @@
+.canvas {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    cursor: crosshair;
+}
+
+.grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(var(--border-primary) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border-primary) 1px, transparent 1px);
+    background-size: 24px 24px;
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+/* Elements */
+.element {
+    position: absolute;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-md);
+    min-width: 160px;
+    max-width: 320px;
+    cursor: grab;
+    user-select: none;
+    transition: box-shadow var(--transition-fast), border-color var(--transition-fast);
+}
+
+.element:hover {
+    border-color: var(--border-secondary);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.element.dragging {
+    cursor: grabbing;
+    border-color: var(--border-focus);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    z-index: 100;
+}
+
+.elementHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-xs) var(--space-sm);
+    border-bottom: 1px solid var(--border-primary);
+    background-color: var(--bg-tertiary);
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+
+.elementType {
+    font-size: 10px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+}
+
+.deleteBtn {
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+}
+
+.element:hover .deleteBtn {
+    opacity: 1;
+}
+
+.deleteBtn:hover {
+    color: var(--error);
+    background-color: rgba(139, 74, 74, 0.2);
+}
+
+/* Link element */
+.linkContent {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+    color: var(--text-primary);
+    text-decoration: none;
+    font-size: 13px;
+}
+
+.linkContent:hover {
+    color: var(--accent-hover);
+}
+
+.linkContent svg {
+    flex-shrink: 0;
+    color: var(--text-muted);
+}
+
+.linkContent span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Image element */
+.imageContent {
+    display: block;
+    max-width: 100%;
+    max-height: 200px;
+    object-fit: contain;
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
+}
+
+/* Note element */
+.noteContent {
+    padding: var(--space-sm) var(--space-md);
+    font-size: 13px;
+    color: var(--text-primary);
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* Add Menu */
+.addMenu {
+    position: absolute;
+    background-color: var(--bg-elevated);
+    border: 1px solid var(--border-secondary);
+    border-radius: var(--radius-md);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+    z-index: 200;
+    animation: slideUp 150ms ease;
+}
+
+.addMenu button {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    width: 100%;
+    padding: var(--space-sm) var(--space-md);
+    font-size: 13px;
+    color: var(--text-primary);
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+}
+
+.addMenu button:hover {
+    background-color: var(--bg-hover);
+}
+
+.addMenu button svg {
+    color: var(--text-muted);
+}
+
+.addInput {
+    padding: var(--space-sm);
+    width: 260px;
+}
+
+.addInput input {
+    width: 100%;
+    padding: var(--space-sm);
+    font-size: 13px;
+    color: var(--text-primary);
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-sm);
+    margin-bottom: var(--space-sm);
+}
+
+.addInput input:focus {
+    outline: none;
+    border-color: var(--border-focus);
+}
+
+.addInputActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-sm);
+}
+
+.addInputActions button {
+    padding: var(--space-xs) var(--space-md);
+    font-size: 12px;
+    border-radius: var(--radius-sm);
+}
+
+.addInputActions button.primary {
+    background-color: var(--accent);
+    color: var(--text-primary);
+}
+
+.addInputActions button.primary:hover {
+    background-color: var(--accent-hover);
+}
+
+/* Instructions */
+.instructions {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: var(--text-muted);
+    pointer-events: none;
+}
+
+.instructions p {
+    font-size: 14px;
+    margin-bottom: var(--space-xs);
+}
+
+.instructions span {
+    font-size: 12px;
+    opacity: 0.7;
+}
