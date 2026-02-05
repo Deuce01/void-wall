@@ -5,6 +5,8 @@ import { useParams, useRouter } from 'next/navigation';
 import { decodeRoomCode, isValidRoomCode, encodeRoomCode } from '@/lib/stealth';
 import Canvas from '@/components/Canvas';
 import Chat from '@/components/Chat';
+import QRModal from '@/components/QRModal';
+import NudgeModal from '@/components/NudgeModal';
 import styles from './room.module.css';
 
 interface RoomData {
@@ -34,6 +36,8 @@ export default function RoomPage() {
     const [username, setUsername] = useState('');
     const [showNamePrompt, setShowNamePrompt] = useState(true);
     const [copied, setCopied] = useState(false);
+    const [showQR, setShowQR] = useState(false);
+    const [showNudge, setShowNudge] = useState(false);
 
     const roomId = params.roomId as string;
     const roomCode = decodeRoomCode(roomId);
@@ -170,6 +174,32 @@ export default function RoomPage() {
                     >
                         {copied ? '✓ Copied' : 'Share'}
                     </button>
+                    <button
+                        onClick={() => setShowQR(true)}
+                        className={styles.qrBtn}
+                        title="Show QR code"
+                    >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <rect x="3" y="3" width="7" height="7" />
+                            <rect x="14" y="3" width="7" height="7" />
+                            <rect x="3" y="14" width="7" height="7" />
+                            <rect x="14" y="14" width="3" height="3" />
+                            <rect x="18" y="14" width="3" height="3" />
+                            <rect x="14" y="18" width="3" height="3" />
+                            <rect x="18" y="18" width="3" height="3" />
+                        </svg>
+                    </button>
+                    <button
+                        onClick={() => setShowNudge(true)}
+                        className={styles.nudgeBtn}
+                        title="Send email nudge"
+                    >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M22 17H2a3 3 0 003-3V9a7 7 0 0114 0v5a3 3 0 003 3z" />
+                            <path d="M9 21h6" />
+                            <path d="M12 3v1" />
+                        </svg>
+                    </button>
                 </div>
                 <div className={styles.headerRight}>
                     <span className={styles.username}>{username}</span>
@@ -199,6 +229,19 @@ export default function RoomPage() {
                     />
                 </div>
             </div>
+
+            {/* Modals */}
+            <QRModal
+                roomCode={roomCode}
+                isOpen={showQR}
+                onClose={() => setShowQR(false)}
+            />
+            <NudgeModal
+                roomCode={roomCode}
+                senderName={username}
+                isOpen={showNudge}
+                onClose={() => setShowNudge(false)}
+            />
         </main>
     );
 }

@@ -130,7 +130,9 @@
 }
 
 .copyBtn,
-.exitBtn {
+.exitBtn,
+.qrBtn,
+.nudgeBtn {
     padding: 4px 12px;
     font-size: 12px;
     color: var(--text-secondary);
@@ -139,13 +141,24 @@
     border-radius: var(--radius-sm);
     cursor: pointer;
     transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    gap: 4px;
 }
 
 .copyBtn:hover,
-.exitBtn:hover {
+.exitBtn:hover,
+.qrBtn:hover,
+.nudgeBtn:hover {
     color: var(--text-primary);
     border-color: var(--border-secondary);
 }
+
+.qrBtn,
+.nudgeBtn {
+    padding: 4px 8px;
+}
+
 
 .username {
     font-size: 13px;
