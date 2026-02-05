@@ -2,6 +2,8 @@
 
 A browser-based, real-time shared canvas and chat accessible via secret tokens. Designed with stealth-optimized, low-profile visual signatures.
 
+**🚀 [Live Demo](https://void-wall.vercel.app/)**
+
 ## Features
 
 - **🎭 Ghost Interface** - Disguised as "Company Portal" internal documentation
