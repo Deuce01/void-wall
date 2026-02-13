@@ -94,10 +94,45 @@ export default function Home() {
           {/* Hidden hint for users who know */}
           {showHint && (
             <div className={styles.hint}>
-              <p>Enter a room code to access the wall</p>
-              <button onClick={handleCreateRoom} className={styles.hintButton}>
-                or create a new room
-              </button>
+              <p>Enter a room code to join, or create your own</p>
+              <div className={styles.createRoom}>
+                <input
+                  type="text"
+                  className={styles.roomInput}
+                  placeholder="Enter custom code (e.g. my-team)"
+                  value={query}
+                  onChange={(e) => {
+                    setQuery(e.target.value.replace(/[^a-zA-Z0-9_-]/g, ''));
+                    setError('');
+                  }}
+                  maxLength={32}
+                />
+                <div className={styles.roomActions}>
+                  <button
+                    onClick={() => {
+                      const code = query.trim();
+                      if (code.length < 3) {
+                        setError('Code must be at least 3 characters');
+                        return;
+                      }
+                      if (isValidRoomCode(code)) {
+                        const encoded = encodeRoomCode(code);
+                        router.push(`/room/${encoded}`);
+                      }
+                    }}
+                    className={styles.joinButton}
+                    disabled={query.trim().length < 3}
+                  >
+                    Join / Create
+                  </button>
+                  <button onClick={handleCreateRoom} className={styles.hintButton}>
+                    Random Room
+                  </button>
+                </div>
+                <span className={styles.codeHint}>
+                  3-32 characters: letters, numbers, dashes, underscores
+                </span>
+              </div>
             </div>
           )}
 

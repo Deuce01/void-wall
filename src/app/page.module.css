@@ -139,31 +139,99 @@
 /* Hint (hidden by default) */
 .hint {
   margin-top: var(--space-md);
-  padding: var(--space-md);
+  padding: var(--space-lg);
   background-color: var(--bg-secondary);
   border: 1px solid var(--border-secondary);
   border-radius: var(--radius-md);
   text-align: center;
   animation: fadeIn var(--transition-normal) ease;
+  width: 100%;
+  max-width: 560px;
 }
 
 .hint p {
   color: var(--text-secondary);
-  margin-bottom: var(--space-sm);
+  margin-bottom: var(--space-md);
   font-size: 13px;
+}
+
+.createRoom {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.roomInput {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-family: var(--font-mono);
+  color: var(--text-primary);
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-sm);
+  text-align: center;
+  letter-spacing: 1px;
+}
+
+.roomInput:focus {
+  outline: none;
+  border-color: var(--border-focus);
+}
+
+.roomInput::placeholder {
+  color: var(--text-muted);
+  letter-spacing: normal;
+  font-family: var(--font-system);
+}
+
+.roomActions {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.joinButton {
+  flex: 1;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+  background-color: var(--accent);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.joinButton:hover:not(:disabled) {
+  background-color: var(--accent-hover);
+}
+
+.joinButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .hintButton {
-  color: var(--text-primary);
-  background: none;
-  border: none;
+  flex: 1;
+  padding: 10px 16px;
+  color: var(--text-secondary);
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  text-decoration: underline;
   font-size: 13px;
+  transition: all var(--transition-fast);
 }
 
 .hintButton:hover {
-  color: var(--accent-hover);
+  color: var(--text-primary);
+  border-color: var(--border-secondary);
+}
+
+.codeHint {
+  font-size: 11px;
+  color: var(--text-muted);
 }
 
 /* Categories */
