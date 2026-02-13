@@ -10,6 +10,8 @@ export default function Home() {
   const [query, setQuery] = useState('');
   const [error, setError] = useState('');
   const [showHint, setShowHint] = useState(false);
+  const [adminPin, setAdminPin] = useState('');
+  const [ownerEmail, setOwnerEmail] = useState('');
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -107,15 +109,45 @@ export default function Home() {
                   }}
                   maxLength={32}
                 />
+                <input
+                  type="text"
+                  className={styles.pinInput}
+                  placeholder="Admin PIN (4-6 digits)"
+                  value={adminPin}
+                  onChange={(e) => setAdminPin(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  maxLength={6}
+                />
+                <input
+                  type="email"
+                  className={styles.emailInput}
+                  placeholder="Owner email (optional)"
+                  value={ownerEmail}
+                  onChange={(e) => setOwnerEmail(e.target.value)}
+                />
                 <div className={styles.roomActions}>
                   <button
-                    onClick={() => {
+                    onClick={async () => {
                       const code = query.trim();
                       if (code.length < 3) {
                         setError('Code must be at least 3 characters');
                         return;
                       }
+                      if (adminPin && adminPin.length < 4) {
+                        setError('PIN must be 4-6 digits');
+                        return;
+                      }
                       if (isValidRoomCode(code)) {
+                        // Create room with admin pin via API
+                        await fetch('/api/room', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                            roomCode: code,
+                            action: 'join',
+                            adminPin: adminPin || undefined,
+                            ownerEmail: ownerEmail || undefined,
+                          }),
+                        });
                         const encoded = encodeRoomCode(code);
                         router.push(`/room/${encoded}`);
                       }
@@ -130,7 +162,7 @@ export default function Home() {
                   </button>
                 </div>
                 <span className={styles.codeHint}>
-                  3-32 characters: letters, numbers, dashes, underscores
+                  PIN protects admin actions (lock, clear, delete). Leave blank for open rooms.
                 </span>
               </div>
             </div>

@@ -1,0 +1,237 @@
+.page {
+    min-height: 100vh;
+    padding: var(--space-lg);
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.loading,
+.hint {
+    text-align: center;
+    color: var(--text-muted);
+    padding: var(--space-xl);
+}
+
+.unauthorized {
+    text-align: center;
+    padding: var(--space-xl);
+}
+
+.unauthorized h1 {
+    font-size: 48px;
+    color: var(--text-muted);
+}
+
+.unauthorized p {
+    color: var(--text-secondary);
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-lg);
+    border-bottom: 1px solid var(--border-primary);
+    padding-bottom: var(--space-md);
+}
+
+.header h1 {
+    font-size: 18px;
+    color: var(--text-primary);
+}
+
+.refreshBtn {
+    padding: 6px 14px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+}
+
+.refreshBtn:hover {
+    color: var(--text-primary);
+}
+
+/* Stats */
+.statsBar {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
+}
+
+.statCard {
+    padding: var(--space-md);
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-md);
+    text-align: center;
+}
+
+.statNum {
+    display: block;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.statLabel {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Layout */
+.layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-lg);
+}
+
+@media (max-width: 768px) {
+    .layout {
+        grid-template-columns: 1fr;
+    }
+
+    .statsBar {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Room List */
+.roomList h2,
+.logViewer h2 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-md);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.empty {
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+.roomCard {
+    padding: var(--space-md);
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-sm);
+    margin-bottom: var(--space-sm);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.roomCard:hover {
+    border-color: var(--border-secondary);
+}
+
+.roomCard.selected {
+    border-color: var(--accent);
+    background-color: var(--bg-tertiary);
+}
+
+.roomHeader {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: var(--space-xs);
+}
+
+.roomName {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text-primary);
+}
+
+.roomTime {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.roomMeta {
+    display: flex;
+    gap: var(--space-md);
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: var(--space-xs);
+}
+
+.roomActions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.deleteBtn {
+    padding: 2px 10px;
+    font-size: 11px;
+    color: #b54;
+    background: none;
+    border: 1px solid #533;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+}
+
+.deleteBtn:hover {
+    color: #d66;
+    border-color: #b54;
+}
+
+/* Log Viewer */
+.logViewer {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.logList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.logEntry {
+    padding: var(--space-sm);
+    background-color: var(--bg-tertiary);
+    border-radius: var(--radius-sm);
+}
+
+.logRow {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.logRow:first-child {
+    margin-bottom: 2px;
+}
+
+.logAction {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.logTime {
+    color: var(--text-muted);
+    font-size: 11px;
+}
+
+.logIp {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.error {
+    color: var(--error);
+    text-align: center;
+    margin-top: var(--space-md);
+}

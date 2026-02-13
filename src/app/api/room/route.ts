@@ -1,77 +1,106 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getRoom, createRoom, roomExists } from '@/lib/redis';
+import { getRoom, createRoom, roomExists, addActivityLog } from '@/lib/redis';
 import { decodeRoomCode, isValidRoomCode } from '@/lib/stealth';
 
+// Extract IP from request
+function getClientIP(request: NextRequest): string {
+    return request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+        || request.headers.get('x-real-ip')
+        || 'unknown';
+}
+
 /**
- * GET /api/room?id=<encoded_room_id>
- * Check if room exists and get its data
+ * GET /api/room?code=xxx
+ * Check if room exists
  */
 export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
-    const encodedId = searchParams.get('id');
+    const code = searchParams.get('code');
 
-    if (!encodedId) {
-        return NextResponse.json({ error: 'Missing room ID' }, { status: 400 });
+    if (!code) {
+        return NextResponse.json({ error: 'Missing room code' }, { status: 400 });
     }
 
-    const roomCode = decodeRoomCode(encodedId);
-
-    if (!roomCode || !isValidRoomCode(roomCode)) {
-        return NextResponse.json({ error: 'Invalid room ID' }, { status: 400 });
-    }
-
-    const room = await getRoom(roomCode);
-
-    if (!room) {
-        return NextResponse.json({ exists: false });
-    }
-
-    return NextResponse.json({
-        exists: true,
-        room: {
-            roomCode: room.roomCode,
-            createdAt: room.createdAt,
-            elementCount: room.elements.length,
-            messageCount: room.chatLog.length,
-        }
-    });
+    const exists = await roomExists(code);
+    return NextResponse.json({ exists });
 }
 
 /**
  * POST /api/room
- * Create a new room or join existing
+ * Create or join a room
  */
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
-        const { roomCode: rawCode, action } = body;
+        const { roomCode, action, adminPin, ownerEmail, creatorName } = body;
 
-        if (!rawCode) {
+        if (!roomCode) {
             return NextResponse.json({ error: 'Missing room code' }, { status: 400 });
         }
 
-        if (!isValidRoomCode(rawCode)) {
-            return NextResponse.json({ error: 'Invalid room code format' }, { status: 400 });
+        // Decode if needed
+        const rawCode = isValidRoomCode(roomCode) ? roomCode : decodeRoomCode(roomCode);
+
+        if (!rawCode || !isValidRoomCode(rawCode)) {
+            return NextResponse.json({ error: 'Invalid room code' }, { status: 400 });
         }
 
+        const ip = getClientIP(request);
         const exists = await roomExists(rawCode);
 
         if (action === 'create') {
             if (exists) {
                 return NextResponse.json({ error: 'Room already exists' }, { status: 409 });
             }
-            const room = await createRoom(rawCode);
-            return NextResponse.json({ success: true, room });
+            const room = await createRoom(rawCode, { adminPin, ownerEmail, creatorName });
+            // Log creation with IP
+            await addActivityLog(rawCode, 'room_created', creatorName || 'Anonymous', ip);
+            // Don't expose admin pin hash
+            const { adminPinHash, ...safeRoom } = room;
+            return NextResponse.json({
+                success: true,
+                room: safeRoom,
+                created: true,
+                hasAdmin: !!adminPinHash
+            });
         }
 
         if (action === 'join') {
             if (!exists) {
-                // Auto-create room on join for convenience
-                const room = await createRoom(rawCode);
-                return NextResponse.json({ success: true, room, created: true });
+                // Auto-create room on join
+                const room = await createRoom(rawCode, { adminPin, ownerEmail, creatorName });
+                await addActivityLog(rawCode, 'room_created', creatorName || 'Anonymous', ip);
+                const { adminPinHash, ...safeRoom } = room;
+                return NextResponse.json({
+                    success: true,
+                    room: safeRoom,
+                    created: true,
+                    hasAdmin: !!adminPinHash
+                });
             }
+
             const room = await getRoom(rawCode);
-            return NextResponse.json({ success: true, room });
+            if (!room) {
+                return NextResponse.json({ error: 'Room not found' }, { status: 404 });
+            }
+
+            // Check if room is locked
+            if (room.isLocked) {
+                return NextResponse.json({ error: 'Room is locked' }, { status: 403 });
+            }
+
+            // Log join with IP
+            await addActivityLog(rawCode, 'user_joined', creatorName || 'Anonymous', ip);
+
+            // Increment member count
+            room.memberCount = (room.memberCount || 0) + 1;
+
+            const { adminPinHash, activityLog, ...safeRoom } = room;
+            return NextResponse.json({
+                success: true,
+                room: safeRoom,
+                hasAdmin: !!adminPinHash
+            });
         }
 
         return NextResponse.json({ error: 'Invalid action' }, { status: 400 });

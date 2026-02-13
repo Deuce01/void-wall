@@ -185,6 +185,36 @@
   font-family: var(--font-system);
 }
 
+.pinInput,
+.emailInput {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--text-primary);
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-sm);
+  text-align: center;
+}
+
+.pinInput {
+  font-family: var(--font-mono);
+  letter-spacing: 4px;
+}
+
+.pinInput:focus,
+.emailInput:focus {
+  outline: none;
+  border-color: var(--border-focus);
+}
+
+.pinInput::placeholder,
+.emailInput::placeholder {
+  color: var(--text-muted);
+  letter-spacing: normal;
+  font-family: var(--font-system);
+}
+
 .roomActions {
   display: flex;
   gap: var(--space-sm);

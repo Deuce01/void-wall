@@ -132,7 +132,8 @@
 .copyBtn,
 .exitBtn,
 .qrBtn,
-.nudgeBtn {
+.nudgeBtn,
+.settingsBtn {
     padding: 4px 12px;
     font-size: 12px;
     color: var(--text-secondary);
@@ -149,13 +150,15 @@
 .copyBtn:hover,
 .exitBtn:hover,
 .qrBtn:hover,
-.nudgeBtn:hover {
+.nudgeBtn:hover,
+.settingsBtn:hover {
     color: var(--text-primary);
     border-color: var(--border-secondary);
 }
 
 .qrBtn,
-.nudgeBtn {
+.nudgeBtn,
+.settingsBtn {
     padding: 4px 8px;
 }
 

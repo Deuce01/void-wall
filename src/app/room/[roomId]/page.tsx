@@ -7,6 +7,7 @@ import Canvas from '@/components/Canvas';
 import Chat from '@/components/Chat';
 import QRModal from '@/components/QRModal';
 import NudgeModal from '@/components/NudgeModal';
+import RoomSettings from '@/components/RoomSettings';
 import styles from './room.module.css';
 
 interface RoomData {
@@ -38,6 +39,8 @@ export default function RoomPage() {
     const [copied, setCopied] = useState(false);
     const [showQR, setShowQR] = useState(false);
     const [showNudge, setShowNudge] = useState(false);
+    const [showSettings, setShowSettings] = useState(false);
+    const [hasAdmin, setHasAdmin] = useState(false);
 
     const roomId = params.roomId as string;
     const roomCode = decodeRoomCode(roomId);
@@ -45,7 +48,6 @@ export default function RoomPage() {
     // Validate and load room
     useEffect(() => {
         const initRoom = async () => {
-            // Validate room code
             if (!roomCode || !isValidRoomCode(roomCode)) {
                 setError('not_found');
                 setLoading(false);
@@ -53,19 +55,23 @@ export default function RoomPage() {
             }
 
             try {
-                // Try to join/create room
                 const res = await fetch('/api/room', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ roomCode, action: 'join' }),
                 });
 
-                if (!res.ok) {
-                    throw new Error('Failed to join room');
+                if (res.status === 403) {
+                    setError('locked');
+                    setLoading(false);
+                    return;
                 }
+
+                if (!res.ok) throw new Error('Failed to join room');
 
                 const data = await res.json();
                 setRoom(data.room);
+                setHasAdmin(data.hasAdmin || false);
                 setLoading(false);
             } catch (err) {
                 console.error('Room init error:', err);
@@ -91,7 +97,6 @@ export default function RoomPage() {
         setTimeout(() => setCopied(false), 2000);
     };
 
-    // Show 404 for invalid rooms
     if (error === 'not_found') {
         return (
             <main className={styles.errorPage}>
@@ -101,10 +106,24 @@ export default function RoomPage() {
                     <span className={styles.errorDetail}>
                         The requested resource could not be located on this server.
                     </span>
-                    <button
-                        onClick={() => router.push('/')}
-                        className={styles.backButton}
-                    >
+                    <button onClick={() => router.push('/')} className={styles.backButton}>
+                        Return to Portal
+                    </button>
+                </div>
+            </main>
+        );
+    }
+
+    if (error === 'locked') {
+        return (
+            <main className={styles.errorPage}>
+                <div className={styles.errorContent}>
+                    <h1>🔒</h1>
+                    <p>Room Locked</p>
+                    <span className={styles.errorDetail}>
+                        This room has been locked by the administrator.
+                    </span>
+                    <button onClick={() => router.push('/')} className={styles.backButton}>
                         Return to Portal
                     </button>
                 </div>
@@ -135,7 +154,6 @@ export default function RoomPage() {
         );
     }
 
-    // Name prompt before entering
     if (showNamePrompt) {
         return (
             <main className={styles.promptPage}>
@@ -163,85 +181,51 @@ export default function RoomPage() {
 
     return (
         <main className={styles.room}>
-            {/* Minimal header */}
             <header className={styles.header}>
                 <div className={styles.headerLeft}>
                     <span className={styles.roomCode}>#{roomCode}</span>
-                    <button
-                        onClick={handleCopyLink}
-                        className={styles.copyBtn}
-                        title="Copy room link"
-                    >
+                    <button onClick={handleCopyLink} className={styles.copyBtn} title="Copy room link">
                         {copied ? '✓ Copied' : 'Share'}
                     </button>
-                    <button
-                        onClick={() => setShowQR(true)}
-                        className={styles.qrBtn}
-                        title="Show QR code"
-                    >
+                    <button onClick={() => setShowQR(true)} className={styles.qrBtn} title="Show QR code">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <rect x="3" y="3" width="7" height="7" />
-                            <rect x="14" y="3" width="7" height="7" />
-                            <rect x="3" y="14" width="7" height="7" />
-                            <rect x="14" y="14" width="3" height="3" />
-                            <rect x="18" y="14" width="3" height="3" />
-                            <rect x="14" y="18" width="3" height="3" />
+                            <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" />
+                            <rect x="3" y="14" width="7" height="7" /><rect x="14" y="14" width="3" height="3" />
+                            <rect x="18" y="14" width="3" height="3" /><rect x="14" y="18" width="3" height="3" />
                             <rect x="18" y="18" width="3" height="3" />
                         </svg>
                     </button>
-                    <button
-                        onClick={() => setShowNudge(true)}
-                        className={styles.nudgeBtn}
-                        title="Send email nudge"
-                    >
+                    <button onClick={() => setShowNudge(true)} className={styles.nudgeBtn} title="Send email nudge">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <path d="M22 17H2a3 3 0 003-3V9a7 7 0 0114 0v5a3 3 0 003 3z" />
-                            <path d="M9 21h6" />
-                            <path d="M12 3v1" />
+                            <path d="M9 21h6" /><path d="M12 3v1" />
+                        </svg>
+                    </button>
+                    <button onClick={() => setShowSettings(true)} className={styles.settingsBtn} title="Room settings">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <circle cx="12" cy="12" r="3" />
+                            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
                         </svg>
                     </button>
                 </div>
                 <div className={styles.headerRight}>
                     <span className={styles.username}>{username}</span>
-                    <button
-                        onClick={() => router.push('/')}
-                        className={styles.exitBtn}
-                    >
-                        Exit
-                    </button>
+                    <button onClick={() => router.push('/')} className={styles.exitBtn}>Exit</button>
                 </div>
             </header>
 
-            {/* Main workspace */}
             <div className={styles.workspace}>
                 <div className={styles.canvasContainer}>
-                    <Canvas
-                        roomCode={roomCode}
-                        username={username}
-                        initialElements={room?.elements || []}
-                    />
+                    <Canvas roomCode={roomCode} username={username} initialElements={room?.elements || []} />
                 </div>
                 <div className={styles.sidePanel}>
-                    <Chat
-                        roomCode={roomCode}
-                        username={username}
-                        initialMessages={room?.chatLog || []}
-                    />
+                    <Chat roomCode={roomCode} username={username} initialMessages={room?.chatLog || []} />
                 </div>
             </div>
 
-            {/* Modals */}
-            <QRModal
-                roomCode={roomCode}
-                isOpen={showQR}
-                onClose={() => setShowQR(false)}
-            />
-            <NudgeModal
-                roomCode={roomCode}
-                senderName={username}
-                isOpen={showNudge}
-                onClose={() => setShowNudge(false)}
-            />
+            <QRModal roomCode={roomCode} isOpen={showQR} onClose={() => setShowQR(false)} />
+            <NudgeModal roomCode={roomCode} senderName={username} isOpen={showNudge} onClose={() => setShowNudge(false)} />
+            <RoomSettings roomCode={roomCode} isOpen={showSettings} onClose={() => setShowSettings(false)} hasAdmin={hasAdmin} />
         </main>
     );
 }
