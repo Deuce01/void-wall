@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import styles from './admin.module.css';
 
@@ -25,7 +25,7 @@ interface ActivityLog {
     timestamp: string;
 }
 
-export default function AdminPage() {
+function AdminContent() {
     const searchParams = useSearchParams();
     const key = searchParams.get('key') || '';
 
@@ -210,5 +210,13 @@ export default function AdminPage() {
 
             {error && <p className={styles.error}>{error}</p>}
         </main>
+    );
+}
+
+export default function AdminPage() {
+    return (
+        <Suspense fallback={<main className={styles.page}><p className={styles.loading}>Loading...</p></main>}>
+            <AdminContent />
+        </Suspense>
     );
 }
